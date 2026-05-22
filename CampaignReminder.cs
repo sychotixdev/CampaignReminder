@@ -98,8 +98,8 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
 
         // ── Decide whether anything is worth showing ─────────────────────────
         var hasAdvice = adviceText != null;
-        var hasReward = !string.IsNullOrEmpty(_currentAreaSettings.LeagueReward);
-        var hasNotes  = !string.IsNullOrEmpty(_currentAreaSettings?.Notes);
+        var hasReward = _currentAreaSettings != null && !string.IsNullOrEmpty(_currentAreaSettings.LeagueReward);
+        var hasNotes  = _currentAreaSettings !=null && !string.IsNullOrEmpty(_currentAreaSettings?.Notes);
 
         if (!hasAdvice && !hasReward && !hasNotes)
             return;

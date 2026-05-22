@@ -26,6 +26,7 @@ public static class CampaignData
             ActName = "Act 1",
             Areas =
             [
+                Z("Clearfell Encampment",       "", notes: "Check vendors"),
                 Z("Clearfell",                  "Orb of Transmutation", notes: "Beira-+10% Cold Res"),
                 Z("Mud Burrow",                 "Orb of Augmentation"),
                 Z("The Grelwood",               "Orb of Transmutation"),
@@ -49,6 +50,7 @@ public static class CampaignData
             ActName = "Act 2",
             Areas =
             [
+                Z("The Ardura Caravan",     "", notes: "Check vendors"),
                 Z("Vastiri Outskirts",      "Exalted Orb"),
                 Z("Mawdun Quarry",          "Uncut Spirit Gem (Level 5)"),
                 Z("Mawdun Mine",            "Uncut Support Gem (Level 2)"),
@@ -60,7 +62,7 @@ public static class CampaignData
                 Z("Lost City",             "Orb of Alchemy"),
                 Z("Buried Shrines",        "Lesser Jeweller's Orb"),
                 Z("Valley of the Titans",  "Unique Item, Abyss Currency", true),
-                Z("Titan Grotto",          "Chance Shard"),
+                Z("The Titan Grotto",      "Chance Shard"),
                 Z("Deshar",               "Lesser Rune", notes:"letter-+2 passives"),
                 Z("Path of Mourning",     ""),   // No Vaal Beacon
                 Z("Spires of Deshar",     "Gemcutter's Prism", true, notes:"shrine-+10% lightning res"),
@@ -75,6 +77,7 @@ public static class CampaignData
             ActName = "Act 3",
             Areas =
             [
+                Z("Ziggurat Encampment",        "", notes: "Check vendors"),
                 Z("Sandswept Marsh",            "Uncut Support Gem (Level 3)"),
                 Z("Jungle Ruins",               "Orb of Alchemy", notes:"Monkey-+2 passives"),
                 Z("The Venom Crypts",           "Magic Ring, Abyss Currency", notes:"Vial-choice"),
@@ -100,6 +103,7 @@ public static class CampaignData
             ActName = "Act 4",
             Areas =
             [
+                Z("Kingsmarch",             "", notes: "Check vendors"),
                 Z("Isle of Kin",            "Gemcutter's Prism", true),
                 Z("Volcanic Warrens",       "Uncut Support Gem (Level 4)"),
                 Z("Eye of Hinekora",        "Chaos Orb", notes:"Silent Hall-+5% mana"),
@@ -125,6 +129,9 @@ public static class CampaignData
             ActName = "Act 6 (Interludes)",
             Areas =
             [
+                Z("The Refuge",             "", notes: "Check vendors"),
+                Z("The Khari Bazaar",       "", notes: "Check vendors"),
+                Z("The Glade",              "", notes: "Check vendors"),
                 Z("Scorched Farmlands",     "Uncut Support Gem (Level 4)"),
                 Z("Stones of Serle",        "Exalted Orb, Abyss Currency"),
                 Z("The Blackwood",          "Greater Orb of Transmutation"),
