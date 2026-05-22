@@ -191,7 +191,7 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
         {
             <= 0                         => ("  KILL LESS MONSTERS",  new Vector4(0.35f, 0.95f, 0.35f, 1f)),
             _ when diff > maxGap + 1     => ("  GRIND LAST ZONE",     new Vector4(0.95f, 0.25f, 0.25f, 1f)),
-            _ when diff <= maxGap + 1    => ("  KILL MORE MONSTERS",  new Vector4(1.00f, 0.60f, 0.10f, 1f)),
+            _ when diff >= maxGap -1    => ("  KILL MORE MONSTERS",  new Vector4(1.00f, 0.60f, 0.10f, 1f)),
             _                            => (null, Vector4.Zero),
         };
     }
