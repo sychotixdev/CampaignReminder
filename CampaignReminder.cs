@@ -12,19 +12,24 @@ namespace CampaignReminder;
 /// Displays a small locked overlay showing:
 ///   1. A level-advice line based on player level vs. area level
 ///   2. The current zone's Vaal Beacon reward (if enabled)
-///   3. Any free-form notes configured for this zone
+///   3. General reminder notes configured for this zone
+///   4. Build-specific notes from the currently loaded build file
 ///
 /// Window position and size are controlled exclusively through Settings,
 /// not by dragging, ensuring it stays out of the way during gameplay.
+///
+/// Build note files live at:  ConfigDirectory/Builds/build_*.json
 /// </summary>
 public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
 {
     // ── State ────────────────────────────────────────────────────────────────
 
-    private AreaSettings _currentAreaSettings;   // null when zone not in our list
+    private AreaSettings _currentAreaSettings;   // null when zone is not in our list
+    private string       _currentAreaName = "";  // always set, even when settings entry absent
+    private BuildManager _buildManager;
     private CampaignReminderMenu _menu;
 
-    // ── ImGui window flags — non-interactive, always-on-top overlay ──────────
+    // ── ImGui window flags — non-interactive overlay ──────────────────────────
 
     private const ImGuiWindowFlags OverlayFlags =
           ImGuiWindowFlags.NoTitleBar
@@ -51,14 +56,22 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
             Settings.Acts = CampaignData.GetDefaultActs();
         };
 
-        _menu = new CampaignReminderMenu(Settings);
+        // Build manager lives in ConfigDirectory/Builds/
+        _buildManager = new BuildManager(ConfigDirectory);
+
+        // Restore the previously selected build (if it still exists)
+        if (!string.IsNullOrEmpty(Settings.SelectedBuildFileName))
+            _buildManager.Load(Settings.SelectedBuildFileName);
+
+        _menu = new CampaignReminderMenu(Settings, _buildManager);
         AreaChange(GameController.Area.CurrentArea);
         return true;
     }
 
     public override void AreaChange(AreaInstance area)
     {
-        _currentAreaSettings = FindAreaSettings(area?.Name);
+        _currentAreaName     = area?.Name ?? "";
+        _currentAreaSettings = FindAreaSettings(_currentAreaName);
     }
 
     public override void DrawSettings()
@@ -96,12 +109,15 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
         }
         catch { /* component may be unavailable between transitions */ }
 
-        // ── Decide whether anything is worth showing ─────────────────────────
-        var hasAdvice = adviceText != null;
-        var hasReward = _currentAreaSettings != null && !string.IsNullOrEmpty(_currentAreaSettings.LeagueReward);
-        var hasNotes  = _currentAreaSettings !=null && !string.IsNullOrEmpty(_currentAreaSettings?.Notes);
+        // ── Content flags ────────────────────────────────────────────────────
+        var hasAdvice     = adviceText != null;
+        var hasReward     = _currentAreaSettings != null
+                            && !string.IsNullOrEmpty(_currentAreaSettings.LeagueReward);
+        var hasNotes      = !string.IsNullOrEmpty(_currentAreaSettings?.Notes);
+        var buildNotes    = _buildManager.GetNotes(_currentAreaName);
+        var hasBuildNotes = !string.IsNullOrEmpty(buildNotes);
 
-        if (!hasAdvice && !hasReward && !hasNotes)
+        if (!hasAdvice && !hasReward && !hasNotes && !hasBuildNotes)
             return;
 
         // ── Style setup ──────────────────────────────────────────────────────
@@ -128,36 +144,54 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
         // ── Window content ───────────────────────────────────────────────────
         ImGui.Begin("##CampaignReminder", OverlayFlags);
 
-        // 1. Level advice line (only shown when there is one)
+        var anySoFar = false;
+
+        // 1. Level advice
         if (hasAdvice)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, adviceColor);
             ImGui.TextWrapped(adviceText);
             ImGui.PopStyleColor();
+            anySoFar = true;
         }
 
         // 2. League / Vaal Beacon reward
         if (hasReward)
         {
-            if (hasAdvice) ImGui.Separator();
-
-            Vector4 rewardColor = fgV;
-            if (_currentAreaSettings.HighlightLeagueReward)
-            {
-                rewardColor = new Vector4(0.35f, 0.95f, 0.35f, 1f); // bright green for highlighted zones
-            }
-
+            if (anySoFar) ImGui.Separator();
+            var rewardColor = _currentAreaSettings.HighlightLeagueReward
+                ? new Vector4(0.35f, 0.95f, 0.35f, 1f)   // bright green
+                : fgV;
             ImGui.PushStyleColor(ImGuiCol.Text, rewardColor);
-            ImGui.TextWrapped($"League: {_currentAreaSettings!.LeagueReward}");
+            ImGui.TextWrapped($"League: {_currentAreaSettings.LeagueReward}");
             ImGui.PopStyleColor();
+            anySoFar = true;
         }
 
-        // 3. Free-form notes
+        // 3. General notes
         if (hasNotes)
         {
-            if (hasAdvice || hasReward) ImGui.Separator();
+            if (anySoFar) ImGui.Separator();
             ImGui.PushStyleColor(ImGuiCol.Text, fgV);
-            ImGui.TextWrapped(_currentAreaSettings!.Notes);
+            ImGui.TextWrapped(_currentAreaSettings.Notes);
+            ImGui.PopStyleColor();
+            anySoFar = true;
+        }
+
+        // 4. Build-specific notes — shown last, visually distinct (light blue)
+        if (hasBuildNotes)
+        {
+            if (anySoFar) ImGui.Separator();
+
+            // Dim label so the notes text itself stands out
+            var labelColor = new Vector4(0.55f, 0.75f, 1.00f, 0.70f);
+            ImGui.PushStyleColor(ImGuiCol.Text, labelColor);
+            ImGui.TextWrapped($"[{_buildManager.CurrentBuildName}]");
+            ImGui.PopStyleColor();
+
+            var buildColor = new Vector4(0.75f, 0.90f, 1.00f, 1.00f);
+            ImGui.PushStyleColor(ImGuiCol.Text, buildColor);
+            ImGui.TextWrapped(buildNotes);
             ImGui.PopStyleColor();
         }
 
@@ -170,17 +204,15 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Determine the level-progress advice line to display.
+    /// Level-progress advice based on the XP gap formula used in PoE 2.
     ///
-    /// Threshold = 3 + floor(playerLevel / 16)
-    /// This is the maximum level gap that still yields full XP in the zone.
+    ///   maxGap = 3 + floor(playerLevel / 16)
+    ///   diff   = areaLevel - playerLevel
     ///
-    ///   diff = areaLevel - playerLevel
-    ///
-    ///   diff &lt;= 0            → overlevelled     → KILL LESS MONSTERS  (green)
-    ///   diff == maxGap        → at XP boundary  → KILL MORE MONSTERS  (orange)
+    ///   diff &lt;= 0            → overlevelled      → KILL LESS MONSTERS  (green)
     ///   diff &gt; maxGap + 1    → too underlevelled → GRIND LAST ZONE     (red)
-    ///   otherwise             → sweet spot       → (no line shown)
+    ///   diff == maxGap        → at XP boundary   → KILL MORE MONSTERS  (orange)
+    ///   otherwise             → sweet spot        → (nothing shown)
     /// </summary>
     private static (string text, Vector4 color) GetLevelAdvice(int playerLevel, int areaLevel)
     {
@@ -189,10 +221,10 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
 
         return diff switch
         {
-            <= 0                         => ("  KILL LESS MONSTERS",  new Vector4(0.35f, 0.95f, 0.35f, 1f)),
-            _ when diff > maxGap + 1     => ("  GRIND LAST ZONE",     new Vector4(0.95f, 0.25f, 0.25f, 1f)),
-            _ when diff >= maxGap    => ("  KILL MORE MONSTERS",  new Vector4(1.00f, 0.60f, 0.10f, 1f)),
-            _                            => (null, Vector4.Zero),
+            <= 0                     => ("  KILL LESS MONSTERS", new Vector4(0.35f, 0.95f, 0.35f, 1f)),
+            _ when diff > maxGap + 1 => ("  GRIND LAST ZONE",    new Vector4(0.95f, 0.25f, 0.25f, 1f)),
+            _ when diff >= maxGap    => ("  KILL MORE MONSTERS", new Vector4(1.00f, 0.60f, 0.10f, 1f)),
+            _                        => (null, Vector4.Zero),
         };
     }
 
@@ -202,8 +234,7 @@ public class CampaignReminder : BaseSettingsPlugin<CampaignReminderSettings>
     /// </summary>
     private AreaSettings FindAreaSettings(string areaName)
     {
-        if (string.IsNullOrEmpty(areaName))
-            return null;
+        if (string.IsNullOrEmpty(areaName)) return null;
 
         foreach (var act in Settings.Acts)
             foreach (var area in act.Areas)
