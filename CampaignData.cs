@@ -39,7 +39,7 @@ public static class CampaignData
                 Z("Freythorn",                  "Uncut Support Gem (Level 1)", notes: "King-+30 spirit"),
                 Z("Ogham Farmlands",            "Uncut Skill Gem (Level 4)", notes: "Lute-+2 passives"),
                 Z("Ogham Village",              "Artificer's Orb", true, notes:"smithing tools"),
-                Z("Manor Ramparts",             "Uncut Skill Gem (Level 5)"),
+                Z("The Manor Ramparts",         "Uncut Skill Gem (Level 5)"),
                 Z("Ogham Manor",                "Orb of Alchemy", notes:"Candlemass-+20 life"),
             ]
         },
