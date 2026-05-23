@@ -65,7 +65,7 @@ public static class CampaignData
                 Z("The Titan Grotto",      "Chance Shard"),
                 Z("Deshar",               "Lesser Rune", notes:"letter-+2 passives"),
                 Z("Path of Mourning",     ""),   // No Vaal Beacon
-                Z("Spires of Deshar",     "Gemcutter's Prism", true, notes:"shrine-+10% lightning res"),
+                Z("The Spires of Deshar",     "Gemcutter's Prism", true, notes:"shrine-+10% lightning res"),
                 Z("Dreadnought",          ""),   // No Vaal Beacon
                 Z("Dreadnought Vanguard", ""),   // No Vaal Beacon
             ]
@@ -91,9 +91,9 @@ public static class CampaignData
                 Z("The Molten Vault",           "Unique Item", true, notes:"Mektul-reforge bench"),
                 Z("Apex of Filth",              "Vaal Orb"),
                 Z("Temple of Kopec",            "Uncut Spirit Gem (Level 11)"),
-                Z("Utzaal (Past)",              "Random Jewel or Time-Lost Jewel", notes:"Heart can drop"),
-                Z("Aggorat (Past)",             "Uncut Skill Gem (Level 11)", notes:"Heart-+2 passives"),
-                Z("The Black Chambers (Past)",  "Vaal Orb"),
+                Z("Utzaal",              "Random Jewel or Time-Lost Jewel", notes:"Heart can drop"),
+                Z("Aggorat",             "Uncut Skill Gem (Level 11)", notes:"Heart-+2 passives"),
+                Z("The Black Chambers",  "Vaal Orb"),
             ]
         },
 
@@ -115,7 +115,7 @@ public static class CampaignData
                 Z("Journey's End",          "Orb of Alchemy", notes:"Omniphobia-+2 passives"),
                 Z("Shrike Island",          "Uncut Support Gem (Level 4)"),
                 Z("Whakapanu Island",       "Artificer's Orb"),
-                Z("Singing Cavern",         "Magic Charm"),
+                Z("Singing Caverns",         "Magic Charm"),
                 Z("Arastas",                "Uncut Skill Gem (Level 12)"),
                 Z("The Excavation",         "Rare Amulet"),
                 Z("Ngakanu",                "Greater Jeweller's Orb, Abyssal Depths", true),
