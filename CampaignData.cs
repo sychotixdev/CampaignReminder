@@ -140,7 +140,7 @@ public static class CampaignData
                 Z("Holten Estate",          "Artificer's Orb"),
                 Z("The Khari Crossing",     "Gemcutter's Prism", true, notes:"Molten Shrine-5% life"),
                 Z("Pools of Khatal",        "Orb of Alchemy"),
-                Z("Sel Khari Sanctuary",    "Orb of Chance"),
+                Z("Sel Khari Sanctuary ",    "Orb of Chance"),
                 Z("The Galai Gates",        "Greater Orb of Augmentation, Abyss Currency"),
                 Z("Qimah",                  "Exalted Orb", notes:"Pillars-choose bonus"),
                 Z("Qimah Reservoir",        "Greater Orb of Transmutation"),
